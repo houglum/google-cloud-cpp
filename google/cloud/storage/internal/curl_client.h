@@ -17,6 +17,7 @@
 
 #include "google/cloud/storage/internal/curl_handle_factory.h"
 #include "google/cloud/storage/internal/raw_client.h"
+#include "google/cloud/storage/oauth2/credentials.h"
 #include <mutex>
 
 namespace google {
@@ -38,7 +39,7 @@ class CurlClient : public RawClient {
   // buffer, but not so large that we worry about memory utilization.
   static constexpr std::size_t kDefaultBufferSize = 128 * 1024;
 
-  explicit CurlClient(std::shared_ptr<Credentials> credentials)
+  explicit CurlClient(std::shared_ptr<storage::oauth2::Credentials> credentials)
       : CurlClient(ClientOptions(std::move(credentials))) {}
 
   explicit CurlClient(ClientOptions options);
