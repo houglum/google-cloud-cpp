@@ -24,7 +24,13 @@ namespace storage {
 inline namespace STORAGE_CLIENT_NS {
 namespace oauth2 {
 /**
- * Represents a credential to access Google Cloud Storage.
+ * Interface for a credential to access Google Cloud Storage.
+ *
+ * To obtain a Credentials object, you should use the convenience methods
+ * declared in google_credentials.h.
+ *
+ * @see https://cloud.google.com/docs/authentication/ for an overview of
+ * authenticating to Google Cloud Platform APIs.
  */
 class Credentials {
  public:
