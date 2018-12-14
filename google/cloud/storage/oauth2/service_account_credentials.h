@@ -70,12 +70,7 @@ ServiceAccountCredentialsInfo ParseServiceAccountCredentials(
 template <typename HttpRequestBuilderType =
               storage::internal::CurlRequestBuilder,
           typename ClockType = std::chrono::system_clock>
-class ServiceAccountCredentials
-    : public RefreshingCredentials<
-          ServiceAccountCredentials<HttpRequestBuilderType, ClockType>> {
-  friend class RefreshingCredentials<
-      ServiceAccountCredentials<HttpRequestBuilderType, ClockType>>;
-
+class ServiceAccountCredentials : public RefreshingCredentials {
  public:
   explicit ServiceAccountCredentials(std::string const& content,
                                      std::string const& source)
@@ -192,7 +187,7 @@ class ServiceAccountCredentials
     return encoded_header + '.' + encoded_payload + '.' + encoded_signature;
   }
 
-  storage::Status Refresh() {
+  storage::Status Refresh() override {
     namespace nl = storage::internal::nl;
 
     auto response = request_.MakeRequest(payload_);
@@ -219,8 +214,8 @@ class ServiceAccountCredentials
         std::chrono::seconds(access_token.value("expires_in", int(0)));
     auto new_expiration = std::chrono::system_clock::now() + expires_in;
     // Do not update any state until all potential exceptions are raised.
-    this->authorization_header_ = std::move(header);
-    this->expiration_time_ = new_expiration;
+    authorization_header_ = std::move(header);
+    expiration_time_ = new_expiration;
     return storage::Status();
   }
 

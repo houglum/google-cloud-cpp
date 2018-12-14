@@ -55,12 +55,7 @@ namespace oauth2 {
  */
 template <typename HttpRequestBuilderType =
               storage::internal::CurlRequestBuilder>
-class ComputeEngineCredentials
-    : public RefreshingCredentials<
-          ComputeEngineCredentials<HttpRequestBuilderType>> {
-  friend class RefreshingCredentials<
-      ComputeEngineCredentials<HttpRequestBuilderType>>;
-
+class ComputeEngineCredentials : public RefreshingCredentials {
  public:
   explicit ComputeEngineCredentials() : ComputeEngineCredentials("default") {}
 
@@ -76,7 +71,7 @@ class ComputeEngineCredentials
    * email address if the credential has not been refreshed yet.
    */
   std::string service_account_email() {
-    std::unique_lock<std::mutex> lock(this->mu_);
+    std::unique_lock<std::mutex> lock(mu_);
     return service_account_email_;
   }
 
@@ -88,7 +83,7 @@ class ComputeEngineCredentials
    * set if the credential has not been refreshed yet.
    */
   std::set<std::string> scopes() {
-    std::unique_lock<std::mutex> lock(this->mu_);
+    std::unique_lock<std::mutex> lock(mu_);
     return scopes_;
   }
 
@@ -139,7 +134,7 @@ class ComputeEngineCredentials
     return storage::Status();
   }
 
-  storage::Status Refresh() {
+  storage::Status Refresh() override {
     namespace nl = storage::internal::nl;
 
     auto status = RetrieveServiceAccountInfo();
@@ -176,13 +171,13 @@ class ComputeEngineCredentials
     auto new_expiration = std::chrono::system_clock::now() + expires_in;
 
     // Do not update any state until all potential exceptions are raised.
-    this->authorization_header_ = std::move(header);
-    this->expiration_time_ = new_expiration;
+    authorization_header_ = std::move(header);
+    expiration_time_ = new_expiration;
     return storage::Status();
   }
 
-  std::set<std::string> scopes_;
-  std::string service_account_email_;
+  std::set<std::string> scopes_;       // Should be accessed only with mu_ held.
+  std::string service_account_email_;  // Should be accessed only with mu_ held.
 };
 
 }  // namespace oauth2

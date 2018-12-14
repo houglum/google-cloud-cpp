@@ -60,12 +60,7 @@ AuthorizedUserCredentialsInfo ParseAuthorizedUserCredentials(
  */
 template <typename HttpRequestBuilderType =
               storage::internal::CurlRequestBuilder>
-class AuthorizedUserCredentials
-    : public RefreshingCredentials<
-          AuthorizedUserCredentials<HttpRequestBuilderType>> {
-  friend class RefreshingCredentials<
-      AuthorizedUserCredentials<HttpRequestBuilderType>>;
-
+class AuthorizedUserCredentials : public RefreshingCredentials {
  public:
   explicit AuthorizedUserCredentials(std::string const& contents,
                                      std::string const& source)
@@ -91,7 +86,7 @@ class AuthorizedUserCredentials
   }
 
  private:
-  google::cloud::storage::Status Refresh() {
+  google::cloud::storage::Status Refresh() override {
     namespace nl = storage::internal::nl;
 
     auto response = request_.MakeRequest(payload_);
